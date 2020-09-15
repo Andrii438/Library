@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.advice.BookNotFoundException;
 import com.example.demo.entity.Book;
 import com.example.demo.repository.BookRepository;
 
@@ -30,7 +31,11 @@ public class BookController {
 	
 	@GetMapping("/{bookId}")
 	public Optional<Book> getBook(@PathVariable Long bookId) {
-		return bookRepo.findById(bookId);
+		Optional<Book> theBook = bookRepo.findById(bookId);
+		
+		if(theBook.isEmpty())
+			throw new BookNotFoundException("Book id not found - " + bookId);
+		return theBook;
 		
 	}
 	
@@ -42,6 +47,8 @@ public class BookController {
 	@PutMapping("/{bookId}")
 	public Book addBook(@PathVariable Long bookId,@RequestBody Book book) {
 		Optional<Book> oldBook=bookRepo.findById(bookId);
+		if(oldBook.isEmpty())
+			throw new BookNotFoundException("Book id not found - " + bookId);
 		Book newBook=oldBook.get();
 		newBook.setName(book.getName());
 		newBook.setNumber(book.getNumber());
