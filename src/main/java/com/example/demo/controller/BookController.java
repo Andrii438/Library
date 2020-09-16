@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,24 +42,27 @@ public class BookController {
 	}
 	
 	@PostMapping("/")
-	public Book addBook(@RequestBody Book book) {
-		return bookRepo.save(book);
+	public ResponseEntity<Book> addBook(@RequestBody Book book) {
+		bookRepo.save(book);
+		return new ResponseEntity<>(HttpStatus.CREATED);
 		
 	}
 	@PutMapping("/{bookId}")
-	public Book addBook(@PathVariable Long bookId,@RequestBody Book book) {
+	public ResponseEntity<Void> addBook(@PathVariable Long bookId,@RequestBody Book book) {
 		Optional<Book> oldBook=bookRepo.findById(bookId);
 		if(oldBook.isEmpty())
 			throw new BookNotFoundException("Book id not found - " + bookId);
 		Book newBook=oldBook.get();
 		newBook.setName(book.getName());
 		newBook.setNumber(book.getNumber());
-		return bookRepo.save(newBook);
+		 bookRepo.save(newBook);
+		 return new ResponseEntity<>(HttpStatus.OK);
 		
 	}
 	@DeleteMapping("/{bookId}")
-	public void deleteBook(@PathVariable Long bookId){
+	public ResponseEntity<Void> deleteBook(@PathVariable Long bookId){
 		bookRepo.deleteById(bookId);
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 	
 	
